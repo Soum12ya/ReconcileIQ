@@ -57,7 +57,8 @@ ReconcileIQ automates triage, investigation, vendor communication, and re-keying
 
 **Demo video**
 
-Watch the demo - 
+Watch the demo - [here](https://drive.google.com/file/d/1H0lu2RyFoYQE8fTaPIhOxHG2_M4hKXxE/view?usp=sharing)
+
 *~2 minute walkthrough: a clean-match invoice auto-resolving, a price-variance case going through the router and policy gate, a triage case resolved manually and approved, and the async vendor loop surviving a worker restart.*
 
 > Replace the paths above with your actual screenshot/video files once captured — see [Testing](#testing) for the exact payloads used to generate each state shown in the video.
