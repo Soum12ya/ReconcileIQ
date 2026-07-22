@@ -146,50 +146,54 @@ LLM Ops Loop (continuous, offline) — Trace → Eval & Observe → Diagnose →
 ap-invoice-agent/
 ├── app/
 │   ├── main.py                        # FastAPI app: all API routes
+│   ├── agents/
+│   │   ├── reconciliation_planner.py  # deterministic rule check, or agentic RAG-backed reasoning
+│   │   ├── router_agent.py            # LLM classification call, traced via Langfuse
+│   │   └── status_agent.py            # status lookups, independent of the pipeline
+│   ├── deterministic_rules/
+│   │   └── rounding_variance.py       # zero-LLM fast path for small variances
 │   ├── gateway/
 │   │   ├── dedupe.py                  # duplicate invoice detection
 │   │   └── pii_scanner.py             # basic PII flagging
 │   ├── harness/
-│   │   ├── db.py                      # SQLAlchemy engine/session
 │   │   ├── async_wait_loop.py         # background worker, consumes vendor_reply_queue
-│   │   └── resolve_case.py            # shared resolution logic (used by worker and sync fallback)
-│   ├── agents/
-│   │   └── router_agent.py            # LLM classification call, traced via Langfuse
-│   ├── deterministic_rules/
-│   │   └── rounding_variance.py       # zero-LLM fast path for small variances
+│   │   └── db.py                      # SQLAlchemy engine/session
 │   ├── policy_guardrails/
 │   │   └── policy_gate.py             # single checkpoint for all external actions
-│   ├── tools/
-│   │   ├── claims_db_tool.py          # PO retrieval
-│   │   └── vector_db_tool.py          # embeddings + RAG over contract clauses
-│   └── schemas/
-│       ├── case_state.py              # CaseState model (the pipeline's source of truth)
-│       ├── purchase_order.py
-│       └── contract_clause.py
+│   ├── schemas/
+│   │   ├── case_state.py              # CaseState model (the pipeline's source of truth)
+│   │   ├── contract_clause.py
+│   │   └── purchase_order.py
+│   └── tools/
+│       ├── claims_db_tool.py          # PO retrieval
+│       ├── ocr_tool.py                # OCR stub (async job, not inline)
+│       └── vector_db_tool.py          # embeddings + RAG over contract clauses
 │
 ├── evals/
-│   └── golden_datasets/
-│       └── phase2_invoices.json
+│   ├── golden_datasets/
+│   └── eval_runner.py                 # scores router classifications against the golden set
 │
 ├── infra/
-│   ├── init_db.py                     # creates all tables
-│   ├── seed_data.py                   # seeds a test PO + contract clause
 │   ├── check_timeouts.py              # escalates cases with no vendor reply
-│   ├── load_test.py                   # measures p50/p95/max latency
 │   ├── consolidate_memory.py          # episodic → semantic memory demo
-│   └── demo_scenario.py               # scripted end-to-end demo run
+│   ├── demo_scenario.py               # scripted end-to-end demo run
+│   ├── init_db.py                     # creates all tables
+│   ├── load_test.py                   # measures p50/p95/max latency
+│   └── seed_data.py                   # seeds a test PO + contract clause
 │
 ├── ui/
 │   ├── app.py                         # Flask proxy + server
-│   ├── templates/
-│   │   ├── base.html
-│   │   └── index.html                 # the HITL review dashboard
-│   └── static/
-│       └── style.css
+│   ├── static/
+│   │   └── style.css
+│   └── templates/
+│       ├── base.html
+│       └── index.html                 # the HITL review dashboard
 │
 ├── docker-compose.yml                 # local Postgres (pgvector) + Redis
 ├── requirements.txt
-└── .env.example
+├── test.py
+├── .env.example
+└── .gitignore
 ```
 
 ---
