@@ -46,10 +46,14 @@ ReconcileIQ automates triage, investigation, vendor communication, and re-keying
 ## Demo
 
 **Live dashboard**
+<table>
+  <tr>
+    <td><img width="480" alt="demo_ui_test_01" src="https://github.com/user-attachments/assets/a6464316-d033-43c5-a09f-1e11dfd88673" /></td>
+    <td><img width="480" alt="demo_ui_test_02" src="https://github.com/user-attachments/assets/a2fd0f08-9cf8-43ec-b1f5-875a1309e7e2" /></td>
+  </tr>
+</table>
 
-<img width="1267" height="694" alt="demo_ui_test_02" src="https://github.com/user-attachments/assets/a2fd0f08-9cf8-43ec-b1f5-875a1309e7e2" />
-
-*The HITL review dashboard — case queue on the left, full reasoning trail and context-aware actions (Approve/Reject or Resolve manually) on the right.*
+*Left: a price-variance case routed and awaiting resolution. Right: a case resolved and closed. The queue on the left is color-coded by status; the detail panel on the right shows the full reasoning trail with context-aware actions.*
 
 **Demo video**
 
@@ -62,7 +66,7 @@ Watch the demo -
 
 ## Workflow
 
-<img width="2720" height="2680" alt="ap_agent_combined_system_design" src="https://github.com/user-attachments/assets/448e8668-b545-4b7c-acbc-d265e1cb8bbd" />
+<img width="780" height="720" alt="ap_agent_combined_system_design" src="https://github.com/user-attachments/assets/448e8668-b545-4b7c-acbc-d265e1cb8bbd" />
 
 *Gateway → Router Agent → Reconciliation Planner (deterministic rule or agentic RAG-backed reasoning) → Policy & Guardrails Gate → Vendor Query Agent (async) or Human Triage → Human Approval → Posted & Closed. The Status Agent and LLM Ops Loop run alongside the pipeline rather than inside it — see [Architecture](#architecture) for the full breakdown.*
 
