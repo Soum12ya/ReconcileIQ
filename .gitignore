@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+
+# DB / local infra
+*.db
+*.sqlite3
+pgdata/
+redis-data/
+
+# Docker
+docker-compose.override.yml
+
+# Node (if ui/ is a JS app)
+node_modules/
+dist/
+build/
+
+# Logs / traces
+*.log
+llmops/traces/
+llmops/runs/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Evals output
+evals/results/

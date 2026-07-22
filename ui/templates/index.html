@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="topbar">
+    <div class="stat-card"><div class="label">Cases today</div><div class="value" id="statToday">–</div></div>
+    <div class="stat-card"><div class="label">Pending approval</div><div class="value" id="statPending">–</div></div>
+    <div class="stat-card"><div class="label">Avg cycle time</div><div class="value" id="statCycle">–</div></div>
+    <div class="stat-card"><div class="label">Auto-resolved</div><div class="value" id="statAuto">–</div></div>
+</div>
+
+<div class="submit-bar">
+    <input id="invoiceJson" placeholder='Paste invoice JSON, e.g. {"invoice_id": "DEMO-001", "vendor": "Meridian Office Supplies", "po_number": "PO-40921", "sku": "DSK-220", "unit_price": 310.00, "qty": 20, "total": 9100.00}' />
+    <button onclick="submitInvoice()">Submit invoice</button>
+</div>
+
+<div class="main">
+    <div class="case-list" id="caseList">
+        <p class="empty">No cases yet.</p>
+    </div>
+
+    <div class="case-detail" id="caseDetail">
+        <p class="empty">Select or submit a case to see details.</p>
+    </div>
+</div>
+
+<script>
+let cases = [];
+let activeCaseId = null;
+
+function badgeClass(status) {
+    if (status === "closed" || status === "posted") return "badge-green";
+    if (status === "awaiting_vendor" || status === "routed") return "badge-blue";
+    if (status === "needs_human_triage" || status === "pending_approval") return "badge-orange";
+    if (status === "rejected") return "badge-gray";
+    return "badge-gray";
+}
+
+function updateStats(caseArr) {
+    document.getElementById("statToday").textContent = caseArr.length;
+    document.getElementById("statPending").textContent =
+        caseArr.filter(c => c.status === "pending_approval").length;
+    const autoResolved = caseArr.filter(c => c.status === "posted").length;
+    document.getElementById("statAuto").textContent =
+        caseArr.length ? Math.round(100 * autoResolved / caseArr.length) + "%" : "0%";
+    document.getElementById("statCycle").textContent = "not tracked yet";
+}
+
+function renderCaseList() {
+    const el = document.getElementById("caseList");
+    if (!cases.length) {
+        el.innerHTML = '<p class="empty">No cases yet.</p>';
+        return;
+    }
+    el.innerHTML = cases.map(c => `
+        <div class="case-item ${c.case_id === activeCaseId ? 'active' : ''}" onclick="selectCase('${c.case_id}')">
+            <div class="case-title">${c.invoice_id || c.case_id}</div>
+            <div class="case-vendor">${c.vendor || ''}</div>
+            <span class="badge ${badgeClass(c.status)}">${c.status}</span>
+        </div>
+    `).join("");
+}
+
+function renderDetail(data) {
+    const el = document.getElementById("caseDetail");
+    if (!data || data.error) {
+        el.innerHTML = `<p class="empty">${data && data.error ? data.error : 'No data.'}</p>`;
+        return;
+    }
+
+    const actionButtons = data.status === "needs_human_triage"
+        ? `<button onclick="manualResolve('${data.case_id}')">Resolve manually</button>
+           <button class="reject" onclick="rejectCase('${data.case_id}')">Reject</button>`
+        : data.status === "pending_approval"
+        ? `<button class="approve" onclick="approveCase('${data.case_id}')">Approve</button>
+           <button class="reject" onclick="rejectCase('${data.case_id}')">Reject</button>`
+        : `<p class="empty">No action available for status "${data.status}".</p>`;
+
+    el.innerHTML = `
+        <div class="detail-header">
+            <div>
+                <h2>${data.invoice_id || data.case_id}</h2>
+                <p class="subtitle">${data.vendor || ''} · route: ${data.route || 'n/a'}</p>
+            </div>
+            <span class="badge ${badgeClass(data.status)}">${data.status}</span>
+        </div>
+        <div class="totals">
+            <div><span class="label">Original total</span><div class="value">${data.original_total ?? '–'}</div></div>
+            <div><span class="label">Corrected total</span><div class="value">${data.corrected_total ?? data.posted_total ?? '–'}</div></div>
+        </div>
+        <div class="actions">
+            ${actionButtons}
+        </div>
+        <pre class="raw">${JSON.stringify(data, null, 2)}</pre>
+    `;
+}
+
+async function refreshList() {
+    const res = await fetch("/api/cases");
+    const data = await res.json();
+    cases = Array.isArray(data) ? data : (data.cases || []);
+    updateStats(cases);
+    renderCaseList();
+}
+
+async function selectCase(caseId) {
+    activeCaseId = caseId;
+    renderCaseList();
+    const res = await fetch(`/api/cases/${caseId}`);
+    const data = await res.json();
+    renderDetail(data);
+}
+
+async function submitInvoice() {
+    const btn = document.querySelector(".submit-bar button");
+    btn.disabled = true;
+    btn.textContent = "Submitting...";
+    try {
+        const raw = document.getElementById("invoiceJson").value;
+        let payload;
+        try {
+            payload = JSON.parse(raw);
+        } catch (e) {
+            alert("Invalid JSON");
+            return;
+        }
+        const res = await fetch("/api/invoices", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        await refreshList();
+        if (data.case_id) selectCase(data.case_id);
+        if (data.error) alert(data.error);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = "Submit invoice";
+    }
+}
+
+async function approveCase(caseId) {
+    const res = await fetch(`/api/cases/${caseId}/approve`, { method: "POST" });
+    const data = await res.json();
+    if (data.error) alert(data.error);
+    await refreshList();
+    selectCase(caseId);
+}
+
+async function rejectCase(caseId) {
+    const res = await fetch(`/api/cases/${caseId}/reject`, { method: "POST" });
+    const data = await res.json();
+    if (data.error) alert(data.error);
+    await refreshList();
+    selectCase(caseId);
+}
+
+async function manualResolve(caseId) {
+    const val = prompt("Enter the corrected total for this case:");
+    if (!val) return;
+    const parsed = parseFloat(val);
+    if (isNaN(parsed)) {
+        alert("Enter a valid number");
+        return;
+    }
+    const res = await fetch(`/api/cases/${caseId}/manual-resolve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ corrected_total: parsed })
+    });
+    const data = await res.json();
+    if (data.error) alert(data.error);
+    await refreshList();
+    selectCase(caseId);
+}
+
+refreshList();
+setInterval(refreshList, 5000);
+</script>
+{% endblock %}

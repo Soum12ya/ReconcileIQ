@@ -1,0 +1,39 @@
+* { box-sizing: border-box; font-family: -apple-system, Segoe UI, sans-serif; }
+body { background: #121212; color: #e8e8e8; margin: 0; padding: 24px; }
+
+.topbar { display: flex; gap: 16px; margin-bottom: 20px; }
+.stat-card { background: #1c1c1c; border-radius: 10px; padding: 16px 20px; flex: 1; }
+.stat-card .label { color: #999; font-size: 13px; }
+.stat-card .value { font-size: 26px; font-weight: 600; margin-top: 4px; }
+
+.submit-bar { display: flex; gap: 10px; margin-bottom: 20px; }
+.submit-bar input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #1c1c1c; color: #eee; }
+.submit-bar button, .actions button { padding: 12px 18px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; }
+.submit-bar button { background: #333; color: #fff; }
+
+.main { display: flex; gap: 16px; }
+.case-list { width: 280px; flex-shrink: 0; }
+.case-item { background: #1c1c1c; border-radius: 10px; padding: 14px; margin-bottom: 10px; cursor: pointer; border: 1px solid transparent; }
+.case-item.active { border-color: #555; }
+.case-title { font-weight: 600; }
+.case-vendor { color: #999; font-size: 13px; margin: 4px 0 8px; }
+
+.case-detail { flex: 1; background: #1a1a1a; border-radius: 10px; padding: 24px; }
+.detail-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+.subtitle { color: #999; }
+.totals { display: flex; gap: 40px; margin-bottom: 20px; }
+.totals .label { color: #999; font-size: 13px; display: block; }
+.totals .value { font-size: 22px; font-weight: 600; }
+
+.actions { display: flex; gap: 10px; margin-bottom: 20px; }
+.actions .approve { background: #1a3d1a; color: #7fdc7f; border: 1px solid #2d5c2d; }
+.actions .reject { background: #1c1c1c; color: #ddd; border: 1px solid #444; }
+
+.badge { padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.badge-green { background: #1a3d1a; color: #7fdc7f; }
+.badge-blue { background: #1a2a3d; color: #7fb0dc; }
+.badge-orange { background: #3d2e1a; color: #dcb27f; }
+.badge-gray { background: #2a2a2a; color: #aaa; }
+
+.raw { background: #0f0f0f; padding: 12px; border-radius: 8px; font-size: 12px; overflow-x: auto; color: #8fdc8f; }
+.empty { color: #777; }

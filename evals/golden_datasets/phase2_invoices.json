@@ -1,0 +1,4 @@
+[
+  {"invoice_id": "INV-T1", "po_total": 8800.00, "invoice_total": 9100.00, "expected_route": "price_variance"},
+  {"invoice_id": "INV-T3", "po_total": 2150.00, "invoice_total": 2150.00, "expected_route": "clean_match"}
+]
